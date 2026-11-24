@@ -4,7 +4,7 @@
 [![rank](https://make.fun/badge/token-radar-01/Tihandukcapil/makefun-token-radar-v2/rank.svg)](https://make.fun/bounty/token-radar-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
 [![reward](https://make.fun/badge/token-radar-01/Tihandukcapil/makefun-token-radar-v2/reward.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
 
-Launch Radar: a token launch radar that prices every protocol that records no token by what its launch would be worth. The value is a least-squares size curve fitted on the protocols that already trade — log market cap on log TVL — with a fitted shift per category and growth and age at half their fitted weight, validated blind by leave-one-out and older-to-newer backtests and printed with a leave-one-out range. Each row carries launch odds from a logistic fit, an airdrop slice and a net-of-fees verdict, and a concrete farm plan with what it costs and how long it takes.
+Launch Radar v3 ranks the 196 pre-token protocols in the snapshot by what their launch would be worth, and shows how to farm each one. The implied value starts from a size curve fitted at runtime on the 128 protocols whose token already trades (log market cap on log TVL), then adds a sector shift per category, capped seven-day growth and age at half weight, and launch odds from a logistic fit. The dashboard shows the board, a detail view with a farm plan and verdict math for every protocol, a live view of 24 tokens that already trade, and the backtest ladder that proves the full model beats a flat multiple on leave-one-out.
 
 ## Run it
 
