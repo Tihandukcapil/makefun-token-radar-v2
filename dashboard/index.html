@@ -3,109 +3,55 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Launch Radar — protocols with no token yet, ranked by implied value</title>
+<title>Launch Radar — Token Launch Radar</title>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
 <header class="top">
-  <div class="brand">
-    <div class="mark">◉</div>
-    <div>
-      <h1>LAUNCH RADAR</h1>
-      <p class="tag">Every protocol that records no token, ranked by what its launch would be worth.</p>
-    </div>
+  <div>
+    <h1>Launch Radar</h1>
+    <p class="sub">Which protocol's token launch would be worth the most — and how to farm it.</p>
   </div>
-  <div class="stats" id="stats"></div>
+  <div class="key" id="key-figures"></div>
 </header>
 <main>
-  <section class="account" id="account">
-    <p class="acct-line" id="acctLine"></p>
-    <div class="acct-bar" id="acctBar"></div>
-    <p class="acct-note" id="acctNote"></p>
+  <section class="card" id="accounting-card">
+    <h2>Accounting — every protocol in the snapshot</h2>
+    <div class="accounting" id="accounting"></div>
+    <p class="note" id="accounting-note"></p>
   </section>
-  <section class="method" id="method">
-    <h2>How a row is priced</h2>
-    <p class="formula">implied value = size curve × sector × growth × age</p>
-    <p>The size curve is a least-squares fit of log market cap on log TVL over the <span id="liveN"></span>
-    protocols that already trade — a big protocol is not worth the flat multiple of a small one, because
-    market cap grows slower than TVL. Sector is a fitted shift per category with at least five live
-    protocols. Growth is the protocol's own seven-day TVL change, capped at ±20% a week, and age is how
-    long it has run with no token; both enter at half their fitted weight, because the fit is strong
-    in-sample but the two barely move the held-out miss, so the board does not let a hot week decide a
-    rank. No protocol name is ever special-cased — the same function scores every row.</p>
-    <div class="backtest">
-      <h3>Priced blind — each step against tokens it never saw</h3>
-      <table id="backtest"><thead><tr>
-        <th>Step</th><th class="num">Miss, left out</th><th class="num">Within 3×</th>
-        <th class="num">Miss, older→newer</th><th class="num">Within 3×</th>
-      </tr></thead><tbody></tbody></table>
-      <p class="note" id="backtestNote"></p>
-    </div>
-    <div class="chartwrap">
-      <h3>Market cap on TVL — the size curve, and where the board sits</h3>
-      <div id="scatter"></div>
-      <p class="note">Grey: the tokens that trade. Blue: this board's rows. Line: the size curve.
-      A row's range is the full model's leave-one-out 25th–75th percentile — the board prints how often
-      that range held.</p>
-    </div>
-    <div class="calib" id="sectors"></div>
-    <p class="note">An implied value is this radar's own claim, never a promise: it says what a token would be
-    worth if the protocol's record stayed as it is. It does not predict whether or when a token is issued.
-    A protocol is shown as recording no token when its DefiLlama record carries none — the record is not
-    proof, and it may still hold one.</p>
+  <section class="card" id="method-card">
+    <h2>Method &amp; backtest</h2>
+    <p class="method" id="method"></p>
+    <table class="backtest" id="backtest"></table>
+    <div class="scatter-wrap"><svg id="scatter" viewBox="0 0 640 360" role="img" aria-label="Size curve scatter"></svg></div>
+    <p class="note">Miss is the median worst factor between predicted and actual market cap. Within-3x is the share of predictions within a factor of three. Older-to-newer fits on protocols tracked at least 900 days and tests on younger ones.</p>
   </section>
-  <section class="controls">
-    <div class="seg" id="bucketSeg" role="group" aria-label="Bucket">
-      <button type="button" data-bucket="" class="on">All</button>
-      <button type="button" data-bucket="watchlist">Watchlist</button>
-      <button type="button" data-bucket="off-list">Off list</button>
-      <button type="button" data-bucket="early">Below floor</button>
+  <section class="card" id="controls-card">
+    <h2>Board</h2>
+    <div class="controls">
+      <label>Bucket <select id="f-bucket"><option value="all">All</option><option value="watchlist">Watchlist</option><option value="off-list above floor">Off list</option><option value="below floor">Below floor</option></select></label>
+      <label>Verdict <select id="f-verdict"><option value="all">All</option><option value="FARM">FARM</option><option value="THIN">THIN</option><option value="SKIP">SKIP</option></select></label>
+      <label>Ticket <select id="f-ticket"><option value="1000">$1,000</option><option value="10000" selected>$10,000</option></select></label>
+      <label>Drop <select id="f-drop"><option value="0.035">3.5%</option><option value="0.07" selected>7%</option><option value="0.14">14%</option></select></label>
+      <label>Category <select id="f-category"><option value="all">All</option></select></label>
+      <label>Chain <select id="f-chain"><option value="all">All</option></select></label>
+      <label>Sort <select id="f-sort"><option value="implied">Implied value</option><option value="tvl">TVL</option><option value="odds">Launch odds</option><option value="age">Age</option></select></label>
+      <label>Search <input id="f-search" type="search" placeholder="name or slug"></label>
     </div>
-    <div class="seg" id="verdictSeg" role="group" aria-label="Verdict">
-      <button type="button" data-verdict="" class="on">Any verdict</button>
-      <button type="button" data-verdict="FARM">Farm</button>
-      <button type="button" data-verdict="THIN">Thin</button>
-      <button type="button" data-verdict="SKIP">Skip</button>
-    </div>
-    <label class="ctl">Ticket
-      <select id="ticket"><option value="1000">$1,000</option><option value="10000">$10,000</option></select>
-    </label>
-    <label class="ctl">Drop share
-      <select id="drop"><option value="0.035">3.5%</option><option value="0.07" selected>7%</option><option value="0.14">14%</option></select>
-    </label>
-    <input id="q" type="search" placeholder="Search name or slug…" aria-label="Search protocols">
-    <select id="cat" aria-label="Filter by category"><option value="">All categories</option></select>
-    <select id="chain" aria-label="Filter by chain"><option value="">All chains</option></select>
-    <select id="sort" aria-label="Sort board">
-      <option value="value">Sort: implied value</option>
-      <option value="tvl">Sort: TVL</option>
-      <option value="growth">Sort: 7-day change</option>
-      <option value="age">Sort: age</option>
-      <option value="odds">Sort: launch odds</option>
-    </select>
-    <button id="liveBtn" type="button">Already trading ▾</button>
+    <div class="board-wrap"><table class="board" id="board"></table></div>
+    <p class="note" id="board-count"></p>
   </section>
-  <section class="detail hidden" id="detail" aria-live="polite"></section>
-  <section class="live hidden" id="live"></section>
-  <section class="board">
-    <div class="boardhead"><span id="count"></span><span id="asof"></span></div>
-    <table>
-      <thead><tr>
-        <th>#</th><th>Protocol</th>
-        <th class="num">TVL</th><th class="num">7d</th><th class="num">Age</th>
-        <th class="num">Launch odds</th><th class="num">Implied value</th>
-        <th class="num">Net of fees</th><th class="num">Verdict</th>
-      </tr></thead>
-      <tbody id="rows"></tbody>
-    </table>
-    <p class="empty hidden" id="empty">Nothing matches these filters.</p>
-    <p class="seal" id="seal"></p>
+  <section class="card" id="detail-card">
+    <h2>Detail</h2>
+    <div id="detail"><p class="note">Click a row in the board to see its farm plan, verdict math and live comparison.</p></div>
   </section>
-  <footer>
-    <p>Source: DefiLlama protocols snapshot, fetched once and sealed — <span id="src"></span>.
-    The board ranks launch candidates only; protocols whose token already trades are shown separately,
-    at the market's own values, never mixed into the ranking. Model radar-3.</p>
-  </footer>
+  <section class="card" id="live-card">
+    <h2>Live view — tokens that already trade</h2>
+    <p class="note">Twenty-four live protocols, biggest TVL first. Their real market cap is shown next to what the size curve would have predicted: the gap is what the model has to learn.</p>
+    <div class="board-wrap"><table class="board" id="live"></table></div>
+  </section>
+  <footer class="card seal"><span id="seal"></span></footer>
 </main>
 <script src="../data.js"></script>
 <script src="app.js"></script>
